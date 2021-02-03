@@ -163,7 +163,7 @@ while not board.is_game_over():
         # display_board(board, move)
         ai_turn = False
     else:
-        move = get_ai_next_move(board, depth)
+        move = get_ai_next_move(board, depth-1)
         board.push(move)
         save_board_to_png(board, move, 'matchAIvsAI-depth'+str(depth)+'/'+str(game_moves))
         print('Move from the White AI: '+move.uci())
