@@ -6,6 +6,7 @@ import math
 import numpy as np
 from keras.models import load_model
 import tensorflow as tf
+from tensorflow.tools.docs.doc_controls import doc_private
 from utils import transform_board, chess_dict, squares, display_board, material_balance, save_board_to_png
 
 gpu_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -75,11 +76,13 @@ def get_ai_moves(board):
                         # add the move and the resulting score of the move to the list
                         possible_moves.append(possible_move)
                         possible_moves_scores.append(score)
-
+    print('Possible moves: '+str(len(possible_moves_scores)))
     return (possible_moves, possible_moves_scores)
 
 # sort of a minimax algorithm with alpha-beta pruning
 def minimax(board, depth, is_maximizing, alpha, beta):
+
+    print('<< Depth '+str(depth)+' >>')
 
     # check if game is over or depth reached
     if depth == 0:
@@ -113,10 +116,9 @@ def minimax(board, depth, is_maximizing, alpha, beta):
             if beta <= alpha:
                 break
         return best_score
-        scores.append(minimax(board, not isMaxTurn, depth-1))
-        board.pop()
 
 def get_ai_next_move(board, depth):
+    print('<< Depth '+str(depth)+' >>')
     best_score = -math.inf
     best_move = None
 
@@ -134,7 +136,7 @@ def get_ai_next_move(board, depth):
 
 
 # depth to which the nn will play
-depth = 2
+depth = 3
 stage = 'early'
 
 # load neural networks
@@ -154,21 +156,22 @@ while not board.is_game_over():
     move_is_legal = False
 
     if ai_turn:
-        move = get_ai_next_move(board, depth)
+        move = get_ai_next_move(board, depth-1)
         board.push(move)
-        save_board_to_png(board, move, 'matchAIvsAI/'+str(game_moves))
-        print('Move from the AI 1: '+move.uci())
-        display_board(board, move)
+        save_board_to_png(board, move, 'matchAIvsAI-depth'+str(depth)+'/'+str(game_moves))
+        print('Move from the Black AI: '+move.uci())
+        # display_board(board, move)
         ai_turn = False
     else:
         move = get_ai_next_move(board, depth)
         board.push(move)
-        save_board_to_png(board, move, 'matchAIvsAI/'+str(game_moves))
-        print('Move from the AI 2: '+move.uci())
+        save_board_to_png(board, move, 'matchAIvsAI-depth'+str(depth)+'/'+str(game_moves))
+        print('Move from the White AI: '+move.uci())
+        # display_board(board, move)
 
         # wait for a legal move from opponent
 
-        # # HANDLE PROMOTION
+        # #TODO: HANDLE PROMOTION
         # while not move_is_legal:
         #     user_move = input('Type your move: ')
             
@@ -182,8 +185,8 @@ while not board.is_game_over():
         #     else:
         #         print('Illegal move, try again.')
 
-        board.push(move)
-        save_board_to_png(board, move, 'matchJordi/'+str(game_moves))
+        # board.push(move)
+        # save_board_to_png(board, move, 'matchJordi/'+str(game_moves))
         ai_turn = True
 
     game_moves += 1
